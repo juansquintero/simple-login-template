@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { View, StyleSheet, TouchableOpacity } from 'react-native'
 import { Text } from 'react-native-paper'
+import { getDocs, setDoc, doc } from 'firebase/firestore'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
 import Header from '../components/Header'
@@ -11,7 +12,7 @@ import { theme } from '../core/theme'
 import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import { phoneValidator } from '../helpers/phoneValidator'
-import { auth } from '../database/firebase'
+import { auth, db } from '../database/firebase'
 import { emailValidator } from '../helpers/emailValidator'
 
 export default function RegisterScreen({ navigation }) {
@@ -33,13 +34,22 @@ export default function RegisterScreen({ navigation }) {
       return
     }
 
-    auth
+    await auth
       .createUserWithEmailAndPassword(mail.value, password.value)
       .then((userCredentials) => {
         const user = userCredentials.user
-        console.log('Usuario registrado', user.email)
+        console.log('Usuario registrado', user.email, user.uid)
+        setDoc(doc(db, 'users', user.uid), {
+          name: name.value,
+          mail: mail.value,
+          number: number.value,
+        })
       })
-      .catch((error) => console.log(error.message))
+      .catch((error) => alert(error.message))
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Dashboard' }],
+    })
   }
 
   return (

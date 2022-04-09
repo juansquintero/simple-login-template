@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { TouchableOpacity, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
-import { useNavigation } from '@react-navigation/native'
+// import { useNavigation } from '@react-navigation/native'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
 import Header from '../components/Header'
@@ -11,7 +11,7 @@ import BackButton from '../components/BackButton'
 import { theme } from '../core/theme'
 import { emailValidator } from '../helpers/emailValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
-import { auth } from '../database/firebase'
+import { auth, db } from '../database/firebase'
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' })
@@ -40,11 +40,7 @@ export default function LoginScreen({ navigation }) {
         .then((userCredentials) => {
           const user = userCredentials.user
           console.log('Logged in with:', user.email)
-
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Dashboard' }],
-          })
+          navigation.navigate('ProfileTest')
         })
         .catch((error) => alert(error.message))
     }
