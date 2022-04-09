@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { TouchableOpacity, StyleSheet, View } from 'react-native'
 import { Text } from 'react-native-paper'
+import { useNavigation } from '@react-navigation/native'
 import Background from '../components/Background'
 import Logo from '../components/Logo'
 import Header from '../components/Header'
@@ -8,33 +9,44 @@ import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import BackButton from '../components/BackButton'
 import { theme } from '../core/theme'
+import { emailValidator } from '../helpers/emailValidator'
 import { passwordValidator } from '../helpers/passwordValidator'
-import { phoneValidator } from '../helpers/phoneValidator'
-import firebase from '../database/firebase'
+import { auth } from '../database/firebase'
 
 export default function LoginScreen({ navigation }) {
-  const [number, setNumber] = useState({ value: '', error: '' })
+  const [email, setEmail] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
 
-  const onLoginPressed = async () => {
-    const numberError = phoneValidator(number.value)
+  const onLoginPressed = () => {
+    const emailError = emailValidator(email.value)
     const passwordError = passwordValidator(password.value)
-    if (numberError || passwordError) {
-      setNumber({ ...number, error: numberError })
+
+    // useEffect(() => {
+    //  const unsubscribe = auth.onAuthStateChanged((user) => {
+    //    if (user) {
+    //    navigation.replace('StartScreen')
+    //  }
+    // })
+
+    // return unsubscribe
+    // }, [])
+
+    if (emailError || passwordError) {
+      setEmail({ ...email, error: emailError })
       setPassword({ ...password, error: passwordError })
-      return
-    }
-    try {
-      await firebase.auth().signInWithPhoneNumber(number.value, password.value).then((res) => {
-        console.log(res)
-        console.log('Inicio Sesion')
-        navigation.reset({
-          index: 0,
-          routes: [{ name: 'Dashboard' }],
-      })
-    }
-    }catch (error) {
-      console.log(error)
+    } else {
+      auth
+        .signInWithEmailAndPassword(email.value, password.value)
+        .then((userCredentials) => {
+          const user = userCredentials.user
+          console.log('Logged in with:', user.email)
+
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Dashboard' }],
+          })
+        })
+        .catch((error) => alert(error.message))
     }
   }
 
@@ -42,18 +54,18 @@ export default function LoginScreen({ navigation }) {
     <Background>
       <BackButton goBack={navigation.goBack} />
       <Logo />
-      <Header>Bienvenido de vuelta</Header>
+      <Header>¡Bienvenido!</Header>
       <TextInput
-        label="Numero de telefono"
+        label="Correo"
         returnKeyType="next"
-        value={number.value}
-        onChangeText={(text) => setNumber({ value: text, error: '' })}
-        error={!!number.error}
-        errorText={number.error}
+        value={email.value}
+        onChangeText={(text) => setEmail({ value: text, error: '' })}
+        error={!!email.error}
+        errorText={email.error}
         autoCapitalize="none"
-        autoCompleteType="tel"
-        textContentType="telephoneNumber"
-        keyboardType="phone-pad"
+        autoCompleteType="email"
+        textContentType="emailAddress"
+        keyboardType="email-address"
       />
       <TextInput
         label="Contraseña"
@@ -68,16 +80,16 @@ export default function LoginScreen({ navigation }) {
         <TouchableOpacity
           onPress={() => navigation.navigate('ResetPasswordScreen')}
         >
-          <Text style={styles.forgot}>¿Olvido su contraseña?</Text>
+          <Text style={styles.forgot}>Forgot your password?</Text>
         </TouchableOpacity>
       </View>
       <Button mode="contained" onPress={onLoginPressed}>
-        Incio de sesion
+        Login
       </Button>
       <View style={styles.row}>
-        <Text>¿No tiene una cuenta? </Text>
+        <Text>Don’t have an account? </Text>
         <TouchableOpacity onPress={() => navigation.replace('RegisterScreen')}>
-          <Text style={styles.link}>Registrese</Text>
+          <Text style={styles.link}>Sign up</Text>
         </TouchableOpacity>
       </View>
     </Background>

@@ -10,9 +10,7 @@ export default function Dashboard({ navigation }) {
     <Background>
       <Logo />
       <Header>¡Bienvenido!</Header>
-      <Paragraph>
-        Su usuario se ha guardado, ya puede iniciar sesion.
-      </Paragraph>
+      <Paragraph>Su usuario se ha guardado, ya puede iniciar sesion.</Paragraph>
       <Button
         mode="outlined"
         onPress={() =>

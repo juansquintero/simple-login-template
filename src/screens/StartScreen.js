@@ -10,9 +10,7 @@ export default function StartScreen({ navigation }) {
     <Background>
       <Logo />
       <Header>Inicio de sesion</Header>
-      <Paragraph>
-        Bienvenido al sistema de pagos de Regiotram.
-      </Paragraph>
+      <Paragraph>Bienvenido al sistema de pagos de Regiotram.</Paragraph>
       <Button
         mode="contained"
         onPress={() => navigation.navigate('LoginScreen')}

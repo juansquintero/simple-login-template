@@ -11,37 +11,35 @@ import { theme } from '../core/theme'
 import { passwordValidator } from '../helpers/passwordValidator'
 import { nameValidator } from '../helpers/nameValidator'
 import { phoneValidator } from '../helpers/phoneValidator'
-import firebase from '../database/firebase'
+import { auth } from '../database/firebase'
+import { emailValidator } from '../helpers/emailValidator'
 
 export default function RegisterScreen({ navigation }) {
   const [name, setName] = useState({ value: '', error: '' })
   const [number, setNumber] = useState({ value: '', error: '' })
   const [password, setPassword] = useState({ value: '', error: '' })
+  const [mail, setMail] = useState({ value: '', error: '' })
 
   const onSignUpPressed = async () => {
     const nameError = nameValidator(name.value)
     const numberError = phoneValidator(number.value)
     const passwordError = passwordValidator(password.value)
-    if (numberError || passwordError || nameError) {
+    const mailError = emailValidator(mail.value)
+    if (numberError || passwordError || nameError || mailError) {
       setName({ ...name, error: nameError })
       setNumber({ ...number, error: numberError })
       setPassword({ ...password, error: passwordError })
+      setMail({ ...mail, error: mailError })
       return
     }
 
-    try {
-      await firebase.db.collection('users').add({
-        name: name.value,
-        password: password.value,
-        number: password.value,
+    auth
+      .createUserWithEmailAndPassword(mail.value, password.value)
+      .then((userCredentials) => {
+        const user = userCredentials.user
+        console.log('Usuario registrado', user.email)
       })
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Dashboard' }],
-      })
-    } catch (error) {
-      console.log(error)
-    }
+      .catch((error) => console.log(error.message))
   }
 
   return (
@@ -56,6 +54,18 @@ export default function RegisterScreen({ navigation }) {
         onChangeText={(text) => setName({ value: text, error: '' })}
         error={!!name.error}
         errorText={name.error}
+      />
+      <TextInput
+        label="Correo"
+        returnKeyType="next"
+        value={mail.value}
+        onChangeText={(text) => setMail({ value: text, error: '' })}
+        error={!!number.error}
+        errorText={number.error}
+        autoCapitalize="none"
+        autoCompleteType="email"
+        textContentType="emailAddress"
+        keyboardType="email-address"
       />
       <TextInput
         label="Numero telefonico"
