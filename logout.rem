@@ -1,0 +1,7 @@
+const handleSignOut = () => {
+    auth
+        .signOut()
+        .then() => {
+            navigation.replace("StartScreen")
+        }
+}
