@@ -6,26 +6,28 @@ import Header from '../components/Header'
 import TextInput from '../components/TextInput'
 import Button from '../components/Button'
 import { emailValidator } from '../helpers/emailValidator'
+import { auth, db } from '../database/firebase'
 
 export default function ResetPasswordScreen({ navigation }) {
   const [email, setEmail] = useState({ value: '', error: '' })
 
-  const sendResetPasswordEmail = () => {
+  const sendResetPasswordMail = async () => {
     const emailError = emailValidator(email.value)
     if (emailError) {
       setEmail({ ...email, error: emailError })
-      return
+    } else {
+      await auth.sendPasswordResetEmail(email.value)
+      navigation.navigate('LoginScreen')
     }
-    navigation.navigate('LoginScreen')
   }
 
   return (
     <Background>
       <BackButton goBack={navigation.goBack} />
       <Logo />
-      <Header>Restore Password</Header>
+      <Header>Recuperar constraseña</Header>
       <TextInput
-        label="E-mail address"
+        label="Correo electronico"
         returnKeyType="done"
         value={email.value}
         onChangeText={(text) => setEmail({ value: text, error: '' })}
@@ -35,14 +37,14 @@ export default function ResetPasswordScreen({ navigation }) {
         autoCompleteType="email"
         textContentType="emailAddress"
         keyboardType="email-address"
-        description="You will receive email with password reset link."
+        description="Recibira un link para la recuperacion de su correo"
       />
       <Button
         mode="contained"
-        onPress={sendResetPasswordEmail}
+        onPress={sendResetPasswordMail}
         style={{ marginTop: 16 }}
       >
-        Send Instructions
+        Enviar Instrucciones
       </Button>
     </Background>
   )
